@@ -1,0 +1,18 @@
+@import url("https://fonts.googleapis.com/css2?family=Cedarville+Cursive&display=swap");
+@import "tailwindcss";
+/* @import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap'); */
+
+/* Optional global styles: */
+
+h1,
+.font-cedarville {
+  font-family: "Cedarville Cursive", cursive !important;
+}
+
+.font-cedarville {
+  font-family: "Cedarville Cursive", cursive !important;
+}
+
+.font-dancing {
+  font-family: "Dancing Script", cursive !important;
+}
