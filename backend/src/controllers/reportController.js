@@ -1,6 +1,7 @@
 const Report = require("../models/Report");
 const { classifyThought, candidate_labels } = require("../services/hfService");
 const { generateAffirmations } = require("../services/hfAffirmationService");
+const AffirmationCache = require("../models/AffirmationCache");
 
 const categoryDescriptions = {
   Scarcity:
@@ -80,7 +81,29 @@ exports.analyzeThought = async (req, res) => {
 
     const coreEmotion = hfResult.labels[0];
     const summary = `Your thought reflects the emotion of ${coreEmotion} most strongly, with other influences present. Reflect on the affirmations below to support your journey.`;
-    const affirmations = await generateAffirmations(coreEmotion);
+
+    // Check affirmation cache first
+    let affirmations = [];
+    const cached = await AffirmationCache.findOne({ coreEmotion });
+    if (cached) {
+      console.log(`Cache hit for coreEmotion: ${coreEmotion}`);
+      affirmations = cached.affirmations;
+    } else {
+      console.log(`Cache miss for coreEmotion: ${coreEmotion}`);
+      try {
+        affirmations = await generateAffirmations(coreEmotion);
+      } catch (err) {
+        console.error("Error generating affirmations:", err);
+        // Fallback to default affirmations
+        affirmations = affirmations[coreEmotion] || [];
+      }
+      // Save to cache
+      await AffirmationCache.findOneAndUpdate(
+        { coreEmotion },
+        { affirmations, updatedAt: new Date() },
+        { upsert: true }
+      );
+    }
 
     res.json({
       userThought: thought,

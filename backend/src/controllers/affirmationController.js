@@ -9,6 +9,7 @@ exports.getAffirmations = async (req, res) => {
     const affirmations = await generateAffirmations(coreEmotion);
     res.json({ affirmations });
   } catch (err) {
+    console.error("Error in getAffirmations:", err);
     res
       .status(500)
       .json({ message: "Affirmation generation failed", error: err.message });
